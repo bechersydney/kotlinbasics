@@ -1,3 +1,6 @@
+import java.lang.Exception
+import java.util.concurrent.RecursiveAction
+
 const val nameVal = "private static final String in java";
 
 fun main(args: Array<String>) {
@@ -51,7 +54,7 @@ fun main(args: Array<String>) {
 //    for (i in 1..10 step 2) {
 //        println(i)
 //    }
-    val mayArr = arrayOf(1,2,3)
+    val mayArr = arrayOf(1, 2, 3)
 //    println(mayArr.max() )
 //    var sum = 0
 //    for (i in mayArr) {
@@ -89,23 +92,119 @@ fun main(args: Array<String>) {
 //
 //    val myArr = listOf(1,2,3,4,5,6)
 //    println(myArr.getProduct())
-    val rectangle = Rectangle(width = 20, height = 30)
-    println(rectangle.isSquare())
-    println(rectangle.perimeter())
-    println(rectangle.getArea())
 
+    // inheritance and overloading
+//    val rectangle = Rectangle(width = 20, height = 30)
+//    println(rectangle.isSquare())
+//    println(rectangle.getPerimeter())
+//    println(rectangle.getArea())
+//
+//    val rectangle2 = Rectangle(2, 2.1)
+//    rectangle2.getPerimeter()
+//    val circle = Circle(3.0)
+//    println(circle.getPerimeter())
+//    println(circle.getArea())
+    // singleton function and object (companion and object)
+    val circle = Circle.createRandomCircle()
+    println("Companion function ${circle.getPerimeter()}")
+    // anonymous functions
+    // we have to do this because this is abstract
+    val a = 3.0;
+    val b = 4.0;
+    val height = 2.0
+    val parallelogram = object : Shape("Parallelogram", a, b, height) {
+        init {
+            println("$name is created")
+        }
+        override fun getPerimeter(): Int = a.times(b).times(height).toInt()
+        override fun getArea(): Int = (a.times(b).times(height)).times(2).toInt()
+    }
+    println("The parallelogram perimeter is ${parallelogram.getPerimeter()}")
+    println("The parallelogram area is ${parallelogram.getArea()}")
+    // Exception
+
+    tryCatch()
+    println(divide(5.0, 1.0))
+    lambDa(){
+        println("The callback is $it")
+    }
+
+    var listInt = listOf(1,2,3,4,5)
+    listInt = listInt.customFilter { it > 3 }
+    println(listInt)
+
+    val circle1 = Circle(1.0)
+    val circle2 = Circle(10.0)
+    val rect = Rectangle(23)
+    val rect1 = Rectangle(12.0)
+    val listOfShape = listOf(circle, circle1, circle2, rect, rect1)
+    val transformedList = listOfShape.customFilter{shape -> shape.getArea() > 2}
+
+    var intList = (1..10).toList()
+    val sum = intList.getOddSum { it % 2 == 1 }
+    println(sum)
+    for(shape in transformedList){
+        println(shape.name)
+    }
+
+    // Custom Generic
+    var customGeneric = CustomGeneric<String ,Int ,Shape, Shape>("Hello", 1, circle, rect1)
+    customGeneric.printTypes()
 }
+
 // function extension
-fun List<Int>.getProduct():Int {
+
+//fun List<Shape>.customFilter(func: (Shape, String)-> Boolean): List<Shape>{
+//    val shapeList = mutableListOf<Shape>()
+//    for(shape in this) {
+//        if(func(shape, shape.name)){
+//            shapeList.add(shape)
+//        }
+//    }
+//    return shapeList
+//}
+
+// generic equivalent on top
+fun <T> List<T>.customFilter(func: (T)->Boolean):List<T> {
+    var resultList = mutableListOf<T>()
+    for(item in this) {
+        if(func(item)){
+            resultList.add(item)
+        }
+    }
+    return resultList
+}
+
+fun List<Int>.getOddSum(func: (Int) -> Boolean): Int {
+    var sum = 0
+    for(i in this) {
+        if(func(i)){
+            sum +=  i
+        }
+    }
+    return sum
+}
+fun List<Int>.getProduct(): Int {
     var product = this[0]
-    for(i in 1..<this.size){
+    for (i in 1..<this.size) {
         product *= this[i]
     }
     return product
 }
-fun Int.isPrime():Boolean{
-    for(i in 2..<this) {
-        if(this % i == 0) {
+// same functionality of .filter
+//fun List<Int>.customFilter(customFilterFunction: (Int)-> (Boolean)): List<Int> {
+//    val resultList = mutableListOf<Int>()
+//    for(i in this) {
+//        if(customFilterFunction(i)){
+//            resultList.add(i)
+//        }
+//    }
+//    return resultList
+//}
+
+fun Int.isPrime(): Boolean {
+    for (i in 2..<this) {
+        if (this % i == 0) {
             return false
         }
     }
@@ -286,7 +385,7 @@ fun singleExpEquivalent(num: Int): Int {
 }
 
 // function overloading
-fun funOverload(a: Int, b: Int) = if (a > b) a else b
+fun funOverload(a: Int, b: Int) = if (a >  b) a else b
 
 fun funOverload(a: Double, b: Double) = if (a > b) a else b
 
@@ -323,23 +422,61 @@ fun spreadVarArgs1(first: Int, vararg remaining: Int): Int {
 
     return max
 }
-fun isPrimeNumber(a:Int):Boolean = a%2 == 0
 
-fun gradeRatingConversion(rating:String):Int {
+fun isPrimeNumber(a: Int): Boolean = a % 2 == 0
+
+fun gradeRatingConversion(rating: String): Int {
     val ratingEquivalent = when (rating) {
         "A" -> 99
         "B" -> {
             println("You are almost there")
             return 95
         }
+
         else -> 65
     }
-    return  ratingEquivalent
+    return ratingEquivalent
 }
 
 fun doubleANumber(a: Int): Int = a * 2
 
-// extension function
+
+// Exception
+// Custom Exception
+class DivideByZeroException : Exception("divisor cannot be zero")
+
+fun tryCatch() {
+//    println("Please Enter a number: ")
+//    val input = try{
+//        readln()?.toInt()
+//    }catch (e: Exception) {
+//        0
+//    }finally {
+//        println("Finally executed!")
+//    }
+//    println("Exception entered $input")
+    val quotient = try {
+        divide(3.0, 0.0)
+    }catch (e: DivideByZeroException){
+        0
+    }
+    println("Output is $quotient")
+}
+
+fun divide(a: Double, b: Double): Double {
+    if(b == 0.0) throw DivideByZeroException()
+    return a / b
+}
+
+// lambda (mostly used in callback and array methods(map, filter))
+fun lambDa(callback: (Int)-> Unit) {
+    var list = (1..20).toList()
+    list.map {
+        println(it)
+    }
+    callback(list[0])
+}
+
 
 
 // classes
